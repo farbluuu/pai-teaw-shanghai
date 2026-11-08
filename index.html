@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shanghai 2026 · Trip</title>
+<style>
+  :root{
+    --bg:#f2f4f7; --surface:#fff; --ink:#1b2330; --sub:#5b6676; --faint:#6a7585;
+    --blue:#2a6df4; --line:#e4e8ee; --inset:#f4f6f9; --green:#0e8a4f; --radius:16px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"PingFang SC","Noto Sans Thai",sans-serif;}
+  .app{max-width:480px;margin:0 auto;background:var(--surface);min-height:100vh;box-shadow:0 0 30px rgba(20,35,60,.08);padding-bottom:28px}
+
+  .asof{background:#eaf1fc;color:#3a4a63;text-align:center;font-size:12px;padding:7px 10px}
+  .hero{position:relative}
+  .hero img{width:100%;height:190px;object-fit:cover;display:block;background:#cdd6e0}
+  .cbtn{position:absolute;top:10px;right:10px}
+  .cbtn button{background:rgba(255,255,255,.95);border:none;border-radius:9px;padding:6px 10px;font-size:12px;font-weight:700;cursor:pointer;color:#2a3442}
+
+  .titlecard{background:var(--surface);margin-top:-22px;position:relative;z-index:1;border-radius:22px 22px 0 0;padding:15px 16px 6px;box-shadow:0 -3px 10px rgba(20,35,60,.05)}
+  .titlecard h1{margin:0;font-size:22px;font-weight:800;outline:none}
+  .titlecard .dates{margin:5px 0 0;font-size:14px;color:var(--sub);outline:none}
+
+  /* edit toolbar (shown only in edit mode) */
+  .edittools{display:none;flex-wrap:wrap;gap:7px;align-items:center;padding:10px 16px 2px}
+  .app.editing .edittools{display:flex}
+  .edittools .st{color:var(--green);font-size:12px;font-weight:600;margin-right:auto}
+  .edittools button{border:none;border-radius:9px;padding:7px 11px;font-size:12.5px;font-weight:700;cursor:pointer}
+  .btn-pri{background:var(--blue);color:#fff}.btn-sec{background:var(--inset);color:#3b4652}.btn-blue{background:#0a6f99;color:#fff}
+
+  /* TABS */
+  .tabs{position:sticky;top:0;z-index:20;background:var(--surface);display:flex;gap:2px;overflow-x:auto;padding:0 12px;border-bottom:1px solid var(--line);scrollbar-width:none}
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{flex:none;border:none;background:transparent;color:#67727f;cursor:pointer;text-align:center;
+    padding:11px 13px 9px;font-size:13.5px;font-weight:750;white-space:nowrap;line-height:1.2;
+    border-bottom:2.5px solid transparent;margin-bottom:-1px}
+  .tab .sub{display:block;font-size:11px;font-weight:600;color:#8793a1;margin-top:2px}
+  .tab.active{color:var(--blue)}
+  .tab.active .sub{color:var(--blue);opacity:.85}
+  .tab.active{border-bottom-color:var(--blue)}
+
+  .panels{padding:14px 16px 0}
+  .panel{display:none}.panel.active{display:block;animation:fade .16s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1}}
+  .widget{display:flex;gap:10px;align-items:stretch;margin-bottom:0}
+  .tl{width:16px;flex:none;display:flex;flex-direction:column;align-items:center}
+  .tl{width:24px}
+  .tl .node{width:24px;height:24px;flex:none;margin-top:3px;display:flex;align-items:center;justify-content:center;font-size:17px;line-height:1;background:#fff}
+  .em{font-size:17px;line-height:1;flex:none}
+  .tl .line{width:2px;flex:1;background:#dde3ea;margin:4px 0}
+  .content{flex:1;min-width:0;padding-bottom:12px}
+
+  /* icon badges */
+  .ic{width:28px;height:28px;border-radius:9px;display:inline-flex;align-items:center;justify-content:center;flex:none}
+  .ic svg{width:17px;height:17px;fill:currentColor}
+  .ic.plane{background:#e9f0ff;color:#2a6df4}
+  .ic.bed{background:#e7f6ee;color:#0e8a4f}
+  .ic.pin{background:#fff1e6;color:#d2691e}
+  .ic.bag{background:#fdeaf3;color:#c43b7a}
+
+  .whead{display:flex;align-items:center;gap:9px}
+  .whead .wt{font-size:14px;font-weight:800;flex:1;outline:none}
+  .whead .conf{color:var(--green);font-size:12px;font-weight:700;display:flex;align-items:center;gap:4px}
+  .whead .conf .ck{width:14px;height:14px;border-radius:50%;background:var(--green);color:#fff;font-size:9px;display:flex;align-items:center;justify-content:center;font-weight:900}
+
+  .bcard{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:#fff}
+  .binfo{padding:12px;display:flex;flex-direction:column;gap:11px}
+  .fl{display:flex;gap:8px;align-items:stretch}
+  .fl .side{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+  .fl .side.r{text-align:right;align-items:flex-end}
+  .fl .t{font-size:17px;font-weight:800;outline:none}
+  .fl .c{font-size:13px;font-weight:700;outline:none}
+  .fl .code{font-size:11px;color:var(--sub);font-weight:700;outline:none}
+  .fl .mid{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-width:74px}
+  .fl .dash{width:70px;border-top:1px dashed #b9c3cf;position:relative}
+  .fl .dash::after{content:"✈️";position:absolute;left:50%;top:-9px;transform:translateX(-50%);font-size:12px;background:#fff;padding:0 1px}
+  .fl .dur{font-size:11px;color:var(--sub);font-weight:600}
+  .bfoot{background:var(--inset);padding:11px 12px;font-size:12.5px;color:var(--sub);font-weight:600}
+
+  .hotel{display:flex;gap:10px;align-items:flex-start}
+  .hotel .hthumb{width:58px;height:58px;border-radius:10px;object-fit:cover;flex:none;background:#dce7f2}
+  .hotel .hthumb.noimg{background:linear-gradient(135deg,#cfe0f5,#e7eef7)}
+  .hotel .nm{font-size:13.5px;font-weight:700;line-height:1.3;outline:none}
+  .hotel .meta{font-size:12.5px;color:var(--sub);font-weight:600;margin-top:4px;outline:none}
+  .hotel .addpic{margin-top:7px}
+  .hotel .addpic button{border:1px dashed #b7c2cf;background:#fbfcfd;color:#3b4652;padding:4px 9px;border-radius:7px;font-size:11px;cursor:pointer;font-weight:650}
+
+  .stay{border:1px solid var(--line);border-radius:var(--radius);padding:11px 12px;display:flex;align-items:center;gap:9px;font-size:13px}
+  .stay .nm{color:var(--ink);font-weight:600;outline:none}
+
+  .plan{border:1px solid var(--line);border-radius:var(--radius);padding:11px 12px 9px;background:#fff}
+  .plan .ph{display:flex;align-items:center;gap:9px;margin-bottom:3px}
+  .plan .ph h3{margin:0;font-size:14px;flex:1;font-weight:800;outline:none}
+  .plan .ph .del{border:none;background:var(--inset);border-radius:7px;width:26px;height:24px;cursor:pointer;color:#55606f;font-size:12px}
+  ul.items{list-style:none;margin:6px 0 0;padding:0;position:relative}
+  ul.items::before{content:"";position:absolute;left:54px;top:16px;bottom:16px;width:2px;background:#dde7ee}
+  ul.items li{display:flex;align-items:flex-start;gap:8px;padding:6px 0}
+  li .tcol{width:42px;flex:none;text-align:right;font-size:12px;font-weight:700;color:var(--sub);padding-top:2px}
+  li .tdot{width:11px;height:11px;border-radius:50%;background:var(--blue);flex:none;margin-top:4px;z-index:1;box-shadow:0 0 0 3px #fff}
+  li.dragging{opacity:.5;pointer-events:none}
+  .handle{cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;color:#9aa6b4;font-size:15px;width:16px;text-align:center;flex:none;margin-top:1px}
+  li .txt{flex:1;line-height:1.45;font-size:14px;outline:none}
+  li .txt:focus{background:#eef5ff;border-radius:6px}
+  li img.photo{display:block;max-width:100%;border-radius:10px;margin:7px 0 2px}
+  .rowbtns{flex:none;opacity:.55}
+  .rowbtns button{border:none;background:var(--inset);border-radius:7px;width:24px;height:24px;cursor:pointer;color:#55606f;font-size:11px}
+  .addbar{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}
+  .addbar button{border:1px dashed #b7c2cf;background:#fbfcfd;color:#3b4652;padding:6px 11px;border-radius:9px;cursor:pointer;font-size:12.5px;font-weight:650}
+
+  /* saved activities (collapsible) */
+  .saved{border:1px solid var(--line);border-radius:var(--radius);padding:11px 12px}
+  .shead{display:flex;align-items:center;gap:9px;width:100%}
+  .shead .savedttl{font-size:14px;font-weight:800;flex:1;outline:none}
+  .shead .chev{border:none;background:var(--inset);border-radius:8px;width:28px;height:26px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+  .shead .chev svg{width:16px;height:16px;fill:#54606e;transition:transform .2s}
+  .saved.collapsed .chev svg{transform:rotate(-90deg)}
+  .saved.collapsed .sbody{display:none}
+  .saved .sbody>ul.items{margin-top:6px;border-top:1px solid var(--line);padding-top:4px}
+  .carousel{display:flex;gap:9px;overflow-x:auto;padding:9px 0 4px;scrollbar-width:none}
+  .carousel::-webkit-scrollbar{display:none}
+  .scard{flex:none;width:168px;border:1px solid var(--line);border-radius:14px;padding:8px;background:#fff}
+  .scard .pic{width:100%;height:100px;border-radius:9px;object-fit:cover;background:linear-gradient(135deg,#cfe0f5,#e7eef7);display:block}
+  .scard .cat{font-size:11px;color:var(--blue);font-weight:800;margin-top:7px;outline:none}
+  .scard .nm{font-size:13px;font-weight:700;line-height:1.3;margin-top:2px;outline:none}
+  .scard .pr{font-size:12px;color:var(--sub);margin-top:6px;outline:none}
+  .scard .addpic{margin-top:6px}
+  .scard .addpic button{border:1px dashed #b7c2cf;background:#fbfcfd;color:#3b4652;padding:4px 8px;border-radius:7px;font-size:11px;cursor:pointer;width:100%;font-weight:650}
+
+  [contenteditable]:focus{outline:none}
+  .editfab{position:fixed;top:12px;right:12px;z-index:70;border:none;border-radius:999px;padding:9px 15px;font-size:13px;font-weight:800;cursor:pointer;background:#1b2330;color:#fff;box-shadow:0 3px 10px rgba(20,35,60,.25)}
+  .app:not(.editing) .handle,.app:not(.editing) .rowbtns,.app:not(.editing) .addbar,
+  .app:not(.editing) .plan .ph .del,.app:not(.editing) .cbtn,
+  .app:not(.editing) .scard .addpic,.app:not(.editing) .addcard,.app:not(.editing) .hotel .addpic{display:none!important}
+  .app.editing .plan,.app.editing .bcard,.app.editing .stay,.app.editing .saved{outline:1px dashed #cdd8e6}
+
+  @media print{.editfab,.edittools,.cbtn,.addbar,.rowbtns,.handle,.plan .ph .del,.scard .addpic,.tabs,.shead .chev{display:none!important}
+    .panel{display:block!important}.saved.collapsed .sbody{display:block!important}body{background:#fff}.app{box-shadow:none}}
+</style>
+</head>
+<body>
+<button id="editToggle" class="editfab" onclick="toggleEdit()">✏️ Edit</button>
+<div class="app" id="app">
+  <div class="hero">
+    <img id="coverImg" src="shanghai-skyline.jpg" alt="Shanghai" onerror="this.style.background='#2a6df4'">
+    <div class="cbtn"><button onclick="coverFile.click()">📷 Cover</button>
+      <input type="file" id="coverFile" accept="image/*" hidden onchange="setCover(this)"></div>
+  </div>
+  <div class="titlecard">
+    <h1 contenteditable="false">Shanghai 2026</h1>
+    <div class="dates" contenteditable="false">2 – 6 Dec 2026 · 2 travelers</div>
+  </div>
+  <div class="edittools">
+    <span class="st" id="status">💾 Auto-saves</span>
+    <button class="btn-pri" onclick="addDay()">➕ Day</button>
+    <button class="btn-sec" onclick="addPlanHere()">➕ Card</button>
+    <button class="btn-blue" onclick="window.print()">🖨️ PDF</button>
+    <button class="btn-sec" onclick="resetAll()">↺ Reset</button>
+  </div>
+  <div class="tabs" id="tabs"></div>
+  <div class="panels" id="panels"></div>
+</div>
+
+<script>
+const KEY="paiteaw_sh_emojitime_v12";
+const tabsEl=document.getElementById("tabs"), panelsEl=document.getElementById("panels");
+const H='<span class="handle" title="Drag">⠿</span>';
+const IC_PLANE='<svg viewBox="0 0 24 24"><path d="M21 15.5 13.5 11V4.3a1.5 1.5 0 0 0-3 0V11L3 15.5V17l7.5-2.2V19l-2 1.4V22l3.5-1 3.5 1v-1.6L13.5 19v-4.2L21 17z"/></svg>';
+const IC_BED='<svg viewBox="0 0 24 24"><path d="M7 12.5a2.3 2.3 0 1 0 0-4.6 2.3 2.3 0 0 0 0 4.6zM3 18.5h2v-2h14v2h2v-5a3 3 0 0 0-3-3h-6v4H5V7H3z"/></svg>';
+const IC_PIN='<svg viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5.5z"/></svg>';
+const IC_BAG='<svg viewBox="0 0 24 24"><path d="M9 6V5a3 3 0 0 1 6 0v1h3.5A1.5 1.5 0 0 1 20 7.5V19a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7.5A1.5 1.5 0 0 1 5.5 6H9zm2 0h2V5a1 1 0 0 0-2 0v1z"/></svg>';
+const IC_CHEV='<svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>';
+const IC_PLATE='<svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm0 4a6 6 0 1 1 0 12 6 6 0 0 1 0-12z"/></svg>';
+
+const DATA=[
+ {id:"d1",tab:"Day 1",date:"2 Dec",widgets:[
+   {type:"flight",air:"MU 8654",on:"2 Dec",dep:{t:"05:05",c:"Bangkok",code:"BKK • GMT+7"},dur:"4h 15m",arr:{t:"10:20",c:"Shanghai",code:"PVG • GMT+8"},foot:"1 Booking • 2 passengers"},
+   {type:"hotel",nm:"The Yard Boutique Hotel 一隅酒店 (Hongqiao–Caohejing)",meta:"2 Dec 14:00 – 6 Dec 12:00 · Shanghai",foot:"1 Booking • 1 room",img:"loc_hotel.jpg"},
+   {type:"saved",title:"Arrive + The Bund",cards:[
+     {cat:"Landmark",nm:"The Bund",pr:"Free",img:"loc_bund.jpg"},
+     {cat:"Shopping",nm:"Nanjing Road",pr:"Free",img:"loc_nanjing.jpg"},
+     {cat:"Attraction",nm:"Natural History Museum",pr:"฿316",img:"loc_nathist.jpg"},
+     {cat:"Attraction",nm:"Ocean Aquarium",pr:"Add price",img:"loc_aquarium.jpg"},
+     {cat:"Food",nm:"Xiaolongbao",pr:"Add note",img:"loc_xlb.jpg"}],
+    items:[
+     "02:00 Wake · 02:20 leave Rama 9 → Suvarnabhumi (~35 min) · 03:00 check-in (2h before) · 05:05 fly",
+     "10:20 Land PVG → hotel (taxi ~60 min) · 14:00 check in",
+     "The Bund at sunset — skyline + holiday lights",
+     "Optional: Pudong → Ocean Aquarium + Shanghai Tower",
+     "Nanjing Road + dinner · xiaolongbao"]}
+ ]},
+ {id:"d2",tab:"Day 2",date:"3 Dec",widgets:[
+   {type:"stay",nm:"The Yard Boutique Hotel 一隅酒店"},
+   {type:"saved",title:"Old Town + Museum + Market",cards:[
+     {cat:"Garden",nm:"Yu Garden 豫园",pr:"฿~150",img:"loc_yugarden.jpg"},
+     {cat:"Museum",nm:"Shanghai Museum",pr:"Free",img:"loc_shmuseum.jpg"},
+     {cat:"Market",nm:"Jing'an Temple + Market",pr:"Free",img:"loc_jingan.jpg"}],items:[
+     "Yu Garden + bazaar + street food","Shanghai Museum (FREE)",
+     "Natural History Museum (saved ticket)",
+     "Christmas Market @ Jing'an Kerry Centre + Jing'an Temple","Eat: shengjianbao"]}
+ ]},
+ {id:"d3",tab:"Day 3",date:"4 Dec",widgets:[
+   {type:"stay",nm:"The Yard Boutique Hotel 一隅酒店"},
+   {type:"saved",title:"Disneyland (weekday!)",cards:[
+     {cat:"Theme Park",nm:"Shanghai Disneyland",pr:"Add price",img:"loc_disney.jpg"}],items:[
+     "'Merry & Bright' — tree, parade, fireworks",
+     "Line 9 → 2 → 11 (~75 min) or Didi","Fireworks + Disneytown holiday market"]}
+ ]},
+ {id:"d4",tab:"Day 4",date:"5 Dec",widgets:[
+   {type:"stay",nm:"The Yard Boutique Hotel 一隅酒店"},
+   {type:"saved",title:"French Concession + Xintiandi",cards:[
+     {cat:"Area",nm:"Tianzifang",pr:"Free",img:"loc_tianzifang.jpg"},
+     {cat:"Area",nm:"Xintiandi",pr:"Free",img:"loc_xintiandi.jpg"},
+     {cat:"Area",nm:"French Concession",pr:"Free",img:"loc_frenchconc.jpg"}],items:[
+     "Tianzifang art lanes (shopping + cafés)","Xintiandi — Christmas tree + market",
+     "French Concession walk — cafés + boutiques","Dinner: hongshao rou"]}
+ ]},
+ {id:"d5",tab:"Day 5",date:"6 Dec",widgets:[
+   {type:"hotel",nm:"Check out · The Yard Boutique Hotel 一隅酒店",meta:"Check-out · 6 Dec 12:00 · Shanghai",foot:"Check out • 1 room",img:"loc_hotel.jpg"},
+   {type:"saved",title:"Last morning + Fly home",cards:[
+     {cat:"Old Town",nm:"Qibao Old Town",pr:"Free",img:"loc_qibao.jpg"}],items:[
+     "Qibao Old Town (near hotel!) — snacks + souvenirs",
+     "12:00 Check out (store bags) · 15:30 to airport (~1.5h)"]},
+   {type:"flight",air:"MU 8613",on:"6 Dec",dep:{t:"19:00",c:"Shanghai",code:"PVG • GMT+8"},dur:"4h 25m",arr:{t:"22:25",c:"Bangkok",code:"BKK • GMT+7"},foot:"1 Booking • 2 passengers"}
+ ]},
+ {id:"extra",tab:"Extras",date:"Shop & Food",widgets:[
+   {type:"plan",ic:"bag",title:"Best Shopping",items:[
+     "Nanjing Road — main pedestrian street","Tianzifang — boutiques, gifts",
+     "Yu Garden Bazaar — souvenirs, tea","AP Plaza — bargain market, HAGGLE!",
+     "IFC / IAPM malls","Qibao Old Town — near hotel"]},
+   {type:"plan",ic:"plate",title:"Where to Eat",items:[
+     "Jia Jia Tang Bao — soup dumplings","Yang's Fry Dumplings 小杨生煎",
+     "Wujiang Road street food","Din Tai Fung","Qibao snack street"]},
+   {type:"plan",ic:"plate",title:"Must-Eat Checklist",items:[
+     "☐ Xiaolongbao","☐ Shengjianbao","☐ Scallion-oil noodles","☐ Hairy crab","☐ Market street food"]}
+ ]}
+];
+const EMO={plane:"✈️",bed:"🏨",pin:"📍",bag:"🛍️",plate:"🍜"};
+function iconBadge(name){return `<span class="em">${EMO[name]||"📍"}</span>`;}
+
+function render(data){tabsEl.innerHTML="";panelsEl.innerHTML="";
+  data.forEach((d,i)=>{
+    const b=document.createElement("button");b.className="tab"+(i===0?" active":"");b.dataset.target=d.id;
+    b.innerHTML=`${d.tab}<span class="sub">${d.date}</span>`;b.onclick=()=>switchTab(d.id);tabsEl.appendChild(b);
+    const p=document.createElement("div");p.className="panel"+(i===0?" active":"");p.id="panel-"+d.id;
+    d.widgets.forEach(w=>p.appendChild(wrapWidget(buildWidget(w),w)));
+    p.appendChild(addPlanBar());panelsEl.appendChild(p);
+  });refreshLines();}
+function nodeHTML(w){let e="📍";
+  if(w.type==="flight")e="✈️";
+  else if(w.type==="hotel"||w.type==="stay")e="🏨";
+  else if(w.type==="saved")e="📍";
+  else e=EMO[w.ic]||"📍";
+  return `<span class="node em">${e}</span>`;}
+function wrapWidget(card,w){const el=document.createElement("div");el.className="widget";
+  el.innerHTML=`<div class="tl">${nodeHTML(w||{type:"plan",ic:"pin"})}<span class="line"></span></div>`;
+  const c=document.createElement("div");c.className="content";c.appendChild(card);el.appendChild(c);return el;}
+function refreshLines(){document.querySelectorAll(".panel").forEach(p=>{
+  const ws=[...p.querySelectorAll(":scope > .widget")];
+  ws.forEach((w,i)=>{const ln=w.querySelector(".tl .line");if(ln)ln.style.display=(i===ws.length-1)?"none":"block";});});}
+function addPlanBar(){const d=document.createElement("div");d.className="addbar";d.style.marginBottom="10px";
+  d.innerHTML=`<button onclick="addPlanIn(this)">＋ Add card to this day</button>`;return d;}
+
+function buildWidget(w){
+  const el=document.createElement("div");
+  if(w.type==="flight"){el.className="bcard";
+    el.innerHTML=`<div class="binfo">
+      <div class="whead">${iconBadge("plane")}<span class="wt" contenteditable="false">Flight · ${w.air}</span>
+        <span class="conf"><span class="ck">✓</span><span contenteditable="false">${w.on}</span></span></div>
+      <div class="fl"><div class="side"><span class="t" contenteditable="false">${w.dep.t}</span><span class="c" contenteditable="false">${w.dep.c}</span><span class="code" contenteditable="false">${w.dep.code}</span></div>
+        <div class="mid"><div class="dash"></div><span class="dur" contenteditable="false">${w.dur}</span></div>
+        <div class="side r"><span class="t" contenteditable="false">${w.arr.t}</span><span class="c" contenteditable="false">${w.arr.c}</span><span class="code" contenteditable="false">${w.arr.code}</span></div></div></div>
+      <div class="bfoot" contenteditable="false">${w.foot}</div>`;
+  }else if(w.type==="hotel"){el.className="bcard";
+    const himg=w.img||"https://pix8.agoda.net/hotelImages/81351283/0/b613316d9c214eff30f44029839f2213.jpeg?ce=3&s=302x450";
+    el.innerHTML=`<div class="binfo"><div class="whead">${iconBadge("bed")}<span class="wt">Hotel</span><span class="conf"><span class="ck">✓</span>Confirmed</span></div>
+      <div class="hotel"><img class="hthumb" src="${himg}" alt="" onerror="this.classList.add('noimg');this.removeAttribute('src')">
+        <div style="flex:1;min-width:0"><div class="nm" contenteditable="false">${w.nm}</div><div class="meta" contenteditable="false">${w.meta}</div>
+          <div class="addpic"><button onclick="setHotelPic(this)">📷 Add photo</button></div></div></div></div>
+      <div class="bfoot" contenteditable="false">${w.foot}</div>`;
+  }else if(w.type==="stay"){el.className="stay";
+    el.innerHTML=`${iconBadge("bed")}<span class="nm" contenteditable="false">${w.nm}</span>`;
+  }else if(w.type==="saved"){el.className="saved";
+    const hasCards=w.cards&&w.cards.length;
+    const carousel=hasCards?`<div class="carousel">${w.cards.map(savedCardHTML).join("")}
+          <div class="scard addcard" style="display:flex;align-items:center;justify-content:center">
+            <button onclick="addSavedCard(this)" style="border:1px dashed #b7c2cf;background:#fbfcfd;border-radius:9px;padding:10px;cursor:pointer;font-weight:700;color:#3b4652">＋ Add</button></div></div>`:"";
+    el.innerHTML=`<div class="shead">${iconBadge("pin")}<span class="savedttl" contenteditable="false">${w.title||"Activities"}</span>
+      <button class="chev" title="Show / hide list" onclick="toggleSaved(this)">${IC_CHEV}</button></div>
+      <div class="sbody">${carousel}
+        <ul class="items">${(w.items||[]).map(itemHTML).join("")}</ul>
+        <div class="addbar"><button onclick="addItem(this)">＋ Add line</button><button onclick="pickPhoto(this)">📷 Add photo</button></div>
+      </div>`;
+  }else{el.className="plan";
+    el.innerHTML=`<div class="ph">${iconBadge(w.ic||"pin")}<h3 contenteditable="false">${w.title||"Plan"}</h3>
+      <button class="del" onclick="delPlan(this)">🗑️</button></div>
+      <ul class="items">${(w.items||[]).map(itemHTML).join("")}</ul>
+      <div class="addbar"><button onclick="addItem(this)">＋ Add line</button><button onclick="pickPhoto(this)">📷 Add photo</button></div>`;
+  }
+  return el;
+}
+function imgFallback(img){const d=document.createElement("div");d.className="pic";img.replaceWith(d);}
+function savedCardHTML(c){const pic=c.img?`<img class="pic" src="${c.img}" alt="" onerror="imgFallback(this)">`:`<div class="pic"></div>`;
+  return `<div class="scard">${pic}
+  <div class="cat" contenteditable="false">${c.cat}</div><div class="nm" contenteditable="false">${c.nm}</div>
+  <div class="pr" contenteditable="false">${c.pr}</div>
+  <div class="addpic"><button onclick="setSavedPic(this)">📷 Add photo</button></div></div>`;}
+function splitTime(t){const m=String(t).match(/^\s*(\d{1,2}:\d{2})\s+(.*)/);return m?[m[1],m[2]]:["",String(t)];}
+function itemHTML(t){const p=splitTime(t);
+  return `<li><span class="tcol" contenteditable="false">${p[0]||"–"}</span><span class="tdot"></span>${H}<span class="txt" contenteditable="false">${p[1]}</span>
+  <span class="rowbtns"><button onclick="delItem(this)">✕</button></span></li>`;}
+
+function toggleSaved(btn){btn.closest(".saved").classList.toggle("collapsed");save();}
+function switchTab(id){document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("active",t.dataset.target===id));
+  document.querySelectorAll(".panel").forEach(p=>p.classList.toggle("active",p.id==="panel-"+id));
+  window.scrollTo({top:0,behavior:"smooth"});save();}
+function activeId(){const t=document.querySelector(".tab.active");return t?t.dataset.target:"";}
+function activePanel(){return document.querySelector(".panel.active");}
+
+function delPlan(b){if(confirm("Delete this card?")){b.closest(".widget").remove();refreshLines();save();}}
+function delItem(b){b.closest("li").remove();save();}
+function addItem(b){const ul=b.closest(".widget").querySelector("ul.items");const tp=document.createElement("template");
+  tp.innerHTML=itemHTML("New note…");ul.appendChild(tp.content.firstElementChild);
+  const s=ul.lastElementChild.querySelector(".txt");s.setAttribute("contenteditable","true");s.focus();document.getSelection().selectAllChildren(s);save();}
+function addPlanIn(b){const p=b.closest(".panel");const o={type:"plan",ic:"pin",title:"New card",items:["Add a note…"]};
+  p.insertBefore(wrapWidget(buildWidget(o),o),b);refreshLines();applyEditable();save();}
+function addPlanHere(){const p=activePanel();if(!p)return;const bar=p.querySelector(":scope > .addbar");
+  const o={type:"plan",ic:"pin",title:"New card",items:["Add a note…"]};
+  p.insertBefore(wrapWidget(buildWidget(o),o),bar);refreshLines();applyEditable();save();}
+function addDay(){const n=document.querySelectorAll(".tab").length;const id="d_"+n+"_"+(performance.now()|0);
+  const b=document.createElement("button");b.className="tab";b.dataset.target=id;b.innerHTML=`Day ${n}<span class="sub">new</span>`;
+  b.onclick=()=>switchTab(id);tabsEl.appendChild(b);
+  const p=document.createElement("div");p.className="panel";p.id="panel-"+id;const o={type:"plan",ic:"pin",title:"New day",items:["Add plan…"]};
+  p.appendChild(wrapWidget(buildWidget(o),o));p.appendChild(addPlanBar());
+  panelsEl.appendChild(p);switchTab(id);refreshLines();applyEditable();save();}
+
+function addSavedCard(btn){const car=btn.closest(".carousel");const tp=document.createElement("template");
+  tp.innerHTML=savedCardHTML({cat:"Activity",nm:"New saved place",pr:"Add note"});
+  car.insertBefore(tp.content.firstElementChild,btn.closest(".scard"));applyEditable();save();}
+function setSavedPic(btn){const card=btn.closest(".scard");const inp=document.createElement("input");inp.type="file";inp.accept="image/*";
+  inp.onchange=()=>{const f=inp.files[0];if(!f)return;const r=new FileReader();
+    r.onload=e=>{card.querySelector(".pic").outerHTML=`<img class="pic" src="${e.target.result}">`;save();};r.readAsDataURL(f);};inp.click();}
+function setHotelPic(btn){const img=btn.closest(".hotel").querySelector(".hthumb");const inp=document.createElement("input");inp.type="file";inp.accept="image/*";
+  inp.onchange=()=>{const f=inp.files[0];if(!f)return;const r=new FileReader();
+    r.onload=e=>{img.src=e.target.result;img.classList.remove("noimg");save();};r.readAsDataURL(f);};inp.click();}
+function pickPhoto(b){const ul=b.closest(".widget").querySelector("ul.items");const inp=document.createElement("input");inp.type="file";inp.accept="image/*";
+  inp.onchange=()=>{const f=inp.files[0];if(!f)return;const r=new FileReader();
+    r.onload=e=>{const li=document.createElement("li");
+      li.innerHTML=`<span class="tcol" contenteditable="${editing}">–</span><span class="tdot"></span>${H}<span class="txt" contenteditable="${editing}"><img class="photo" src="${e.target.result}"></span>
+        <span class="rowbtns"><button onclick="delItem(this)">✕</button></span>`;ul.appendChild(li);save();};r.readAsDataURL(f);};inp.click();}
+function setCover(inp){const f=inp.files[0];if(!f)return;const r=new FileReader();
+  r.onload=e=>{document.getElementById("coverImg").src=e.target.result;save();};r.readAsDataURL(f);}
+
+/* FREE DRAG items */
+let D=null;
+document.addEventListener("pointerdown",e=>{const h=e.target.closest(".handle");if(!h)return;const li=h.closest("li");if(!li)return;
+  e.preventDefault();D={el:li,parent:li.parentNode};li.classList.add("dragging");
+  document.addEventListener("pointermove",onMove);document.addEventListener("pointerup",onUp,{once:true});});
+function onMove(e){if(!D)return;const t=document.elementFromPoint(e.clientX,e.clientY);if(!t)return;
+  const over=t.closest("li");if(over&&over!==D.el&&over.parentNode===D.parent){
+    const r=over.getBoundingClientRect();const before=e.clientY<r.top+r.height/2;D.parent.insertBefore(D.el,before?over:over.nextSibling);}}
+function onUp(){if(D){D.el.classList.remove("dragging");D=null;document.removeEventListener("pointermove",onMove);save();}}
+
+/* EDIT MODE */
+let editing=false;
+function applyEditable(){document.querySelectorAll('#app [contenteditable]').forEach(e=>e.setAttribute('contenteditable',editing));}
+function toggleEdit(){editing=!editing;document.getElementById("app").classList.toggle("editing",editing);
+  const t=document.getElementById("editToggle");t.textContent=editing?"✓ Done":"✏️ Edit";t.style.background=editing?"#0e8a4f":"#1b2330";
+  applyEditable();}
+
+/* persistence */
+function save(){try{localStorage.setItem(KEY,JSON.stringify({tabs:tabsEl.innerHTML,panels:panelsEl.innerHTML,active:activeId(),
+    title:document.querySelector(".titlecard h1").innerHTML,dates:document.querySelector(".titlecard .dates").innerHTML,
+    cover:document.getElementById("coverImg").src}));flash("💾 Saved");}catch(e){flash("⚠️ Storage full");}}
+let tmr;function flash(m){const s=document.getElementById("status");if(!s)return;s.textContent=m;clearTimeout(tmr);tmr=setTimeout(()=>s.textContent="💾 Auto-saves",1000);}
+function rebind(){document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>switchTab(t.dataset.target));}
+function load(){const raw=localStorage.getItem(KEY);
+  if(raw){try{const p=JSON.parse(raw);tabsEl.innerHTML=p.tabs;panelsEl.innerHTML=p.panels;
+    if(p.title)document.querySelector(".titlecard h1").innerHTML=p.title;
+    if(p.dates)document.querySelector(".titlecard .dates").innerHTML=p.dates;
+    if(p.cover)document.getElementById("coverImg").src=p.cover;rebind();refreshLines();if(p.active)switchTab(p.active);return;}catch(e){}}
+  render(DATA);}
+function resetAll(){if(confirm("Reset to original plan? Edits & photos cleared.")){localStorage.removeItem(KEY);
+  document.querySelector(".titlecard h1").innerHTML="Shanghai 2026";document.querySelector(".titlecard .dates").innerHTML="2 – 6 Dec 2026 · 2 travelers";
+  document.getElementById("coverImg").src="shanghai-skyline.jpg";render(DATA);save();}}
+
+document.addEventListener("input",()=>save());
+load();applyEditable();
+</script>
+</body>
+</html>
