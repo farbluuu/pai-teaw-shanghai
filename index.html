@@ -122,7 +122,9 @@
   .saved .sbody>ul.items{margin-top:6px;border-top:1px solid var(--line);padding-top:4px}
   .carousel{display:flex;gap:9px;overflow-x:auto;padding:9px 0 4px;scrollbar-width:none}
   .carousel::-webkit-scrollbar{display:none}
-  .scard{flex:none;width:168px;border:1px solid var(--line);border-radius:14px;padding:8px;background:#fff}
+  .scard{flex:none;width:168px;border:1px solid var(--line);border-radius:14px;padding:8px;background:#fff;position:relative}
+  .scard.star-on{border-color:#f0b429;box-shadow:0 0 0 1px #f0b429}
+  .scard .star{position:absolute;top:13px;left:13px;background:rgba(17,24,39,.74);color:#fff;font-size:10px;font-weight:800;padding:2px 7px;border-radius:999px;z-index:2}
   .scard .pic{width:100%;height:100px;border-radius:9px;object-fit:cover;background:linear-gradient(135deg,#cfe0f5,#e7eef7);display:block}
   .scard .cat{font-size:11px;color:var(--blue);font-weight:800;margin-top:7px;outline:none}
   .scard .nm{font-size:13px;font-weight:700;line-height:1.3;margin-top:2px;outline:none}
@@ -165,7 +167,7 @@
 </div>
 
 <script>
-const KEY="paiteaw_sh_cafes_v14";
+const KEY="paiteaw_sh_mustdo_v15";
 const tabsEl=document.getElementById("tabs"), panelsEl=document.getElementById("panels");
 const H='<span class="handle" title="Drag">⠿</span>';
 const IC_PLANE='<svg viewBox="0 0 24 24"><path d="M21 15.5 13.5 11V4.3a1.5 1.5 0 0 0-3 0V11L3 15.5V17l7.5-2.2V19l-2 1.4V22l3.5-1 3.5 1v-1.6L13.5 19v-4.2L21 17z"/></svg>';
@@ -180,24 +182,31 @@ const DATA=[
    {type:"flight",air:"MU 8654",on:"2 Dec",dep:{t:"05:05",c:"Bangkok",code:"BKK • GMT+7"},dur:"4h 15m",arr:{t:"10:20",c:"Shanghai",code:"PVG • GMT+8"},foot:"1 Booking • 2 passengers"},
    {type:"hotel",nm:"The Yard Boutique Hotel 一隅酒店 (Hongqiao–Caohejing)",meta:"2 Dec 14:00 – 6 Dec 12:00 · Shanghai",foot:"1 Booking • 1 room",img:"loc_hotel.jpg"},
    {type:"saved",title:"Arrive + The Bund",cards:[
-     {cat:"Landmark",nm:"The Bund",pr:"Free",img:"loc_bund.jpg"},
+     {cat:"Landmark",nm:"The Bund",pr:"Free",img:"loc_bund.jpg",star:true},
      {cat:"Shopping",nm:"Nanjing Road",pr:"Free",img:"loc_nanjing.jpg"},
      {cat:"Attraction",nm:"Natural History Museum",pr:"฿316",img:"loc_nathist.jpg"},
      {cat:"Attraction",nm:"Ocean Aquarium",pr:"Add price",img:"loc_aquarium.jpg"},
-     {cat:"Food",nm:"Xiaolongbao",pr:"Add note",img:"loc_xlb.jpg"}],
+     {cat:"Food",nm:"Xiaolongbao",pr:"Add note",img:"loc_xlb.jpg",star:true}],
     items:[
      "02:00 Wake · 02:20 leave Rama 9 → Suvarnabhumi (~35 min) · 03:00 check-in (2h before) · 05:05 fly",
      "10:20 Land PVG → hotel (taxi ~60 min) · 14:00 check in",
      "The Bund at sunset — skyline + holiday lights",
      "Optional: Pudong → Ocean Aquarium + Shanghai Tower",
-     "Nanjing Road + dinner · xiaolongbao"]}
+     "Nanjing Road + dinner · xiaolongbao"]},
+   {type:"saved",title:"🌃 Night Views & Rooftops",cards:[
+     {cat:"Rooftop",nm:"FLAIR (Ritz 58F)",pr:"Highest",img:"loc_night.jpg"},
+     {cat:"Speakeasy",nm:"The Captain Bar",pr:"Bund view",img:"loc_cocktail.jpg"},
+     {cat:"Rooftop",nm:"Roosevelt Sky Bar",pr:"Bund 27",img:"loc_bundnight.jpg"}],items:[
+     "FLAIR — 58F Ritz-Carlton Pudong, highest open-air, Pearl Tower view",
+     "The Captain Bar — nautical speakeasy on the Bund, affordable view",
+     "Roosevelt Sky Bar — Bund 27, 1920s building skyline terrace"]}
  ]},
  {id:"d2",tab:"Day 2",date:"3 Dec",widgets:[
    {type:"stay",nm:"The Yard Boutique Hotel 一隅酒店"},
    {type:"saved",title:"Old Town + Museum + Market",cards:[
-     {cat:"Garden",nm:"Yu Garden 豫园",pr:"฿~150",img:"loc_yugarden.jpg"},
-     {cat:"Museum",nm:"Shanghai Museum",pr:"Free",img:"loc_shmuseum.jpg"},
-     {cat:"Market",nm:"Jing'an Temple + Market",pr:"Free",img:"loc_jingan.jpg"},
+     {cat:"Garden",nm:"Yu Garden 豫园",pr:"฿~150",img:"loc_yugarden.jpg",star:true},
+     {cat:"Museum",nm:"Shanghai Museum",pr:"Free",img:"loc_shmuseum.jpg",star:true},
+     {cat:"Market",nm:"Jing'an Temple + Market",pr:"Free",img:"loc_jingan.jpg",star:true},
      {cat:"Shopping",nm:"Nanjing Road East",pr:"Free",img:"loc_nanjing.jpg"},
      {cat:"Park",nm:"People's Square / Park",pr:"Free",img:"loc_peoplesq.jpg"},
      {cat:"Area",nm:"Tianzifang",pr:"Free",img:"loc_tianzifang.jpg"}],items:[
@@ -211,8 +220,8 @@ const DATA=[
  {id:"d3",tab:"Day 3",date:"4 Dec",widgets:[
    {type:"stay",nm:"The Yard Boutique Hotel 一隅酒店"},
    {type:"saved",title:"Disneyland (weekday!)",cards:[
-     {cat:"Theme Park",nm:"Shanghai Disneyland",pr:"Add price",img:"loc_disney.jpg"},
-     {cat:"Icon",nm:"Enchanted Storybook Castle",pr:"In park",img:"loc_disney.jpg"},
+     {cat:"Theme Park",nm:"Shanghai Disneyland",pr:"Add price",img:"loc_disney.jpg",star:true},
+     {cat:"Icon",nm:"Enchanted Storybook Castle",pr:"In park",img:"loc_disney.jpg",star:true},
      {cat:"Shopping",nm:"Disneytown",pr:"Free",img:"loc_disneytown.jpg"},
      {cat:"Lake",nm:"Wishing Star Lake",pr:"Free",img:"loc_wishinglake.jpg"},
      {cat:"Hotel",nm:"Toy Story Hotel",pr:"Add price",img:"loc_toystory.jpg"}],items:[
@@ -225,17 +234,17 @@ const DATA=[
  {id:"d4",tab:"Day 4",date:"5 Dec",widgets:[
    {type:"stay",nm:"The Yard Boutique Hotel 一隅酒店"},
    {type:"saved",title:"French Concession + Xintiandi",cards:[
-     {cat:"Street",nm:"Wukang Road 武康路",pr:"Free",img:"loc_wukang.jpg"},
+     {cat:"Street",nm:"Wukang Road 武康路",pr:"Free",img:"loc_wukang.jpg",star:true},
      {cat:"Street",nm:"Anfu Road 安福路",pr:"Free",img:"loc_anfu.jpg"},
      {cat:"Area",nm:"Tianzifang",pr:"Free",img:"loc_tianzifang.jpg"},
-     {cat:"Area",nm:"Xintiandi",pr:"Free",img:"loc_xintiandi.jpg"},
+     {cat:"Area",nm:"Xintiandi",pr:"Free",img:"loc_xintiandi.jpg",star:true},
      {cat:"Area",nm:"French Concession",pr:"Free",img:"loc_frenchconc.jpg"}],items:[
      "Wukang Road 武康路 — scenic villas + Wukang Mansion photo spot",
      "Anfu Road 安福路 — trendy cafés, brunch, boutiques",
      "Tianzifang art lanes (shopping + cafés)","Xintiandi — Christmas tree + market",
      "French Concession walk — cafés + boutiques","Dinner: hongshao rou"]},
    {type:"saved",title:"☕ Hidden Gems & Cafés",cards:[
-     {cat:"Coffee",nm:"Metal Hands (Top-50)",pr:"Yongjia Rd",img:"loc_metalhands.jpg"},
+     {cat:"Coffee",nm:"Metal Hands (Top-50)",pr:"Yongjia Rd",img:"loc_metalhands.jpg",star:true},
      {cat:"Coffee",nm:"Manner Coffee (Bund view)",pr:"Cheap + good",img:"loc_manner.jpg"},
      {cat:"Café",nm:"13DE MARZO (bear café)",pr:"Photogenic",img:"loc_demarzo.jpg"},
      {cat:"Café",nm:"Goodbai Café",pr:"Trendy",img:"loc_goodbai.jpg"}],items:[
@@ -247,7 +256,7 @@ const DATA=[
  {id:"d5",tab:"Day 5",date:"6 Dec",widgets:[
    {type:"hotel",nm:"Check out · The Yard Boutique Hotel 一隅酒店",meta:"Check-out · 6 Dec 12:00 · Shanghai",foot:"Check out • 1 room",img:"loc_hotel.jpg"},
    {type:"saved",title:"Last morning + Fly home",cards:[
-     {cat:"Old Town",nm:"Qibao Old Town",pr:"Free",img:"loc_qibao.jpg"}],items:[
+     {cat:"Old Town",nm:"Qibao Old Town",pr:"Free",img:"loc_qibao.jpg",star:true}],items:[
      "Qibao Old Town (near hotel!) — snacks + souvenirs",
      "12:00 Check out (store bags) · 15:30 to airport (~1.5h)"]},
    {type:"flight",air:"MU 8613",on:"6 Dec",dep:{t:"19:00",c:"Shanghai",code:"PVG • GMT+8"},dur:"4h 25m",arr:{t:"22:25",c:"Bangkok",code:"BKK • GMT+7"},foot:"1 Booking • 2 passengers"}
@@ -330,7 +339,8 @@ function buildWidget(w){
 }
 function imgFallback(img){const d=document.createElement("div");d.className="pic";img.replaceWith(d);}
 function savedCardHTML(c){const pic=c.img?`<img class="pic" src="${c.img}" alt="" onerror="imgFallback(this)">`:`<div class="pic"></div>`;
-  return `<div class="scard">${pic}
+  const star=c.star?`<span class="star">⭐ Must-do</span>`:"";
+  return `<div class="scard${c.star?' star-on':''}">${star}${pic}
   <div class="cat" contenteditable="false">${c.cat}</div><div class="nm" contenteditable="false">${c.nm}</div>
   <div class="pr" contenteditable="false">${c.pr}</div>
   <div class="addpic"><button onclick="setSavedPic(this)">📷 Add photo</button></div></div>`;}
