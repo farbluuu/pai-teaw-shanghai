@@ -116,8 +116,8 @@
   .shead{display:flex;align-items:center;gap:9px;width:100%}
   .shead .savedttl{font-size:14px;font-weight:800;flex:1;outline:none}
   .shead .chev{border:none;background:var(--inset);border-radius:8px;width:28px;height:26px;cursor:pointer;display:flex;align-items:center;justify-content:center}
-  .shead .chev svg{width:16px;height:16px;fill:#54606e;transition:transform .2s}
-  .saved.collapsed .chev svg{transform:rotate(-90deg)}
+  .shead .chev{font-size:13px;line-height:1;transition:transform .2s}
+  .saved.collapsed .chev{transform:rotate(-90deg)}
   .saved.collapsed .sbody{display:none}
   .saved .sbody>ul.items{margin-top:6px;border-top:1px solid var(--line);padding-top:4px}
   .carousel{display:flex;gap:9px;overflow-x:auto;padding:9px 0 4px;scrollbar-width:none}
@@ -165,14 +165,14 @@
 </div>
 
 <script>
-const KEY="paiteaw_sh_emojitime_v12";
+const KEY="paiteaw_sh_places_v13";
 const tabsEl=document.getElementById("tabs"), panelsEl=document.getElementById("panels");
 const H='<span class="handle" title="Drag">⠿</span>';
 const IC_PLANE='<svg viewBox="0 0 24 24"><path d="M21 15.5 13.5 11V4.3a1.5 1.5 0 0 0-3 0V11L3 15.5V17l7.5-2.2V19l-2 1.4V22l3.5-1 3.5 1v-1.6L13.5 19v-4.2L21 17z"/></svg>';
 const IC_BED='<svg viewBox="0 0 24 24"><path d="M7 12.5a2.3 2.3 0 1 0 0-4.6 2.3 2.3 0 0 0 0 4.6zM3 18.5h2v-2h14v2h2v-5a3 3 0 0 0-3-3h-6v4H5V7H3z"/></svg>';
 const IC_PIN='<svg viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5.5z"/></svg>';
 const IC_BAG='<svg viewBox="0 0 24 24"><path d="M9 6V5a3 3 0 0 1 6 0v1h3.5A1.5 1.5 0 0 1 20 7.5V19a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7.5A1.5 1.5 0 0 1 5.5 6H9zm2 0h2V5a1 1 0 0 0-2 0v1z"/></svg>';
-const IC_CHEV='<svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>';
+const IC_CHEV='🔽';
 const IC_PLATE='<svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm0 4a6 6 0 1 1 0 12 6 6 0 0 1 0-12z"/></svg>';
 
 const DATA=[
@@ -197,24 +197,41 @@ const DATA=[
    {type:"saved",title:"Old Town + Museum + Market",cards:[
      {cat:"Garden",nm:"Yu Garden 豫园",pr:"฿~150",img:"loc_yugarden.jpg"},
      {cat:"Museum",nm:"Shanghai Museum",pr:"Free",img:"loc_shmuseum.jpg"},
-     {cat:"Market",nm:"Jing'an Temple + Market",pr:"Free",img:"loc_jingan.jpg"}],items:[
+     {cat:"Market",nm:"Jing'an Temple + Market",pr:"Free",img:"loc_jingan.jpg"},
+     {cat:"Shopping",nm:"Nanjing Road East",pr:"Free",img:"loc_nanjing.jpg"},
+     {cat:"Park",nm:"People's Square / Park",pr:"Free",img:"loc_peoplesq.jpg"},
+     {cat:"Area",nm:"Tianzifang",pr:"Free",img:"loc_tianzifang.jpg"}],items:[
      "Yu Garden + bazaar + street food","Shanghai Museum (FREE)",
      "Natural History Museum (saved ticket)",
+     "People's Square / Park — central, next to the museum",
+     "Nanjing Road East — pedestrian shopping street",
+     "Tianzifang — arty lanes + cafés",
      "Christmas Market @ Jing'an Kerry Centre + Jing'an Temple","Eat: shengjianbao"]}
  ]},
  {id:"d3",tab:"Day 3",date:"4 Dec",widgets:[
    {type:"stay",nm:"The Yard Boutique Hotel 一隅酒店"},
    {type:"saved",title:"Disneyland (weekday!)",cards:[
-     {cat:"Theme Park",nm:"Shanghai Disneyland",pr:"Add price",img:"loc_disney.jpg"}],items:[
+     {cat:"Theme Park",nm:"Shanghai Disneyland",pr:"Add price",img:"loc_disney.jpg"},
+     {cat:"Icon",nm:"Enchanted Storybook Castle",pr:"In park",img:"loc_disney.jpg"},
+     {cat:"Shopping",nm:"Disneytown",pr:"Free",img:"loc_disneytown.jpg"},
+     {cat:"Lake",nm:"Wishing Star Lake",pr:"Free",img:"loc_wishinglake.jpg"},
+     {cat:"Hotel",nm:"Toy Story Hotel",pr:"Add price",img:"loc_toystory.jpg"}],items:[
      "'Merry & Bright' — tree, parade, fireworks",
-     "Line 9 → 2 → 11 (~75 min) or Didi","Fireworks + Disneytown holiday market"]}
+     "Enchanted Storybook Castle — main photo + fireworks spot",
+     "Line 9 → 2 → 11 (~75 min) or Didi",
+     "Wishing Star Lake — scenic lakeside walk",
+     "Disneytown — free shopping + holiday market after the park"]}
  ]},
  {id:"d4",tab:"Day 4",date:"5 Dec",widgets:[
    {type:"stay",nm:"The Yard Boutique Hotel 一隅酒店"},
    {type:"saved",title:"French Concession + Xintiandi",cards:[
+     {cat:"Street",nm:"Wukang Road 武康路",pr:"Free",img:"loc_wukang.jpg"},
+     {cat:"Street",nm:"Anfu Road 安福路",pr:"Free",img:"loc_anfu.jpg"},
      {cat:"Area",nm:"Tianzifang",pr:"Free",img:"loc_tianzifang.jpg"},
      {cat:"Area",nm:"Xintiandi",pr:"Free",img:"loc_xintiandi.jpg"},
      {cat:"Area",nm:"French Concession",pr:"Free",img:"loc_frenchconc.jpg"}],items:[
+     "Wukang Road 武康路 — scenic villas + Wukang Mansion photo spot",
+     "Anfu Road 安福路 — trendy cafés, brunch, boutiques",
      "Tianzifang art lanes (shopping + cafés)","Xintiandi — Christmas tree + market",
      "French Concession walk — cafés + boutiques","Dinner: hongshao rou"]}
  ]},
